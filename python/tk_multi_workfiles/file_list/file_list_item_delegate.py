@@ -71,6 +71,8 @@ class FileListItemDelegate(GroupedListViewItemDelegate):
                     label += "<br>%s" % file_item.format_published_by_details()
                 elif file_item.is_local:
                     label += "<br>%s" % file_item.format_modified_by_details()
+                if file_item.description:
+                    label += "<br>%s" % file_item.format_description()
 
                 # retrieve the icon:
                 icon = file_item.thumbnail

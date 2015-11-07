@@ -164,7 +164,10 @@ class FileFinder(QtCore.QObject):
 
         # find all work & publish files and filter out any that should be ignored:
         work_files = self._find_work_files(context, work_template, version_compare_ignore_fields)
-        filtered_work_files = self._filter_work_files(work_files, valid_file_extensions)
+        filtered_work_files = self._filter_work_files(work_files,
+                                                      valid_file_extensions,
+                                                      work_template,
+                                                      context)
         
         published_files = self._find_publishes(publish_filters)
         filtered_published_files = self._filter_publishes(published_files, 
@@ -492,14 +495,18 @@ class FileFinder(QtCore.QObject):
         
         return work_file_paths
         
-    def _filter_work_files(self, work_file_paths, valid_file_extensions):
+    def _filter_work_files(self, work_file_paths, valid_file_extensions,
+                           work_template, context):
         """
         """
         # build list of work files to send to the filter_work_files hook:
         hook_work_files = [{"work_file":{"path":path}} for path in work_file_paths]
         
         # execute the hook - this will return a list of filtered publishes:
-        hook_result = self._app.execute_hook("hook_filter_work_files", work_files = hook_work_files)
+        hook_result = self._app.execute_hook("hook_filter_work_files",
+                                             work_files=hook_work_files,
+                                             work_template=work_template,
+                                             context=context)
         if not isinstance(hook_result, list):
             self._app.log_error("hook_filter_work_files returned an unexpected result type '%s' - ignoring!" 
                           % type(hook_result).__name__)
@@ -947,7 +954,9 @@ class AsyncFileFinder(FileFinder):
         """
         filtered_work_files = []
         if work_files:
-            filtered_work_files = self._filter_work_files(work_files, environment.valid_file_extensions)
+            filtered_work_files = self._filter_work_files(
+                work_files, environment.valid_file_extensions,
+                environment.work_template, environment.context)
         return {"work_files":filtered_work_files}
 
     def _task_process_work_items(self, work_files, environment, name_map, **kwargs):

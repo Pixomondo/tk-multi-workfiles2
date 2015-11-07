@@ -210,6 +210,14 @@ class FileItem(object):
     # Work file properties
 
     @property
+    def description(self):
+        """
+        :returns:   A description of what's changed in this version to the
+                    previous.
+        """
+        return self._details.get('description')
+
+    @property
     def is_local(self):
         """
         :returns:   True if this instance has a local/work file on disk otherwise False
@@ -399,6 +407,17 @@ class FileItem(object):
         else:
             return "<i>No description was entered for this publish</i>"
 
+    def format_description(self):
+        """
+        Format the workfile description to be used in UI elements
+
+        :returns:   A string containing the formatted workfile description
+        """
+        if self.description:
+            return "%s" % self.description
+        else:
+            return "<i>No description was entered for this version</i>"
+
     def format_tooltip(self):
         """
         Format text for a tooltip containing all useful information about
@@ -460,6 +479,8 @@ class FileItem(object):
             tooltip += "<hr>"
             tooltip += "<b>Modified by:</b><br>"
             tooltip += self.format_modified_by_details(single_line=True)
+            tooltip += "<br>"
+            tooltip += ("<i>%s</i>" % self.format_description())
 
             if latest_publish_version:
                 # also add some information about the most recent publish:
