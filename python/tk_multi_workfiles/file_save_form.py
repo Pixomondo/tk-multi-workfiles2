@@ -623,6 +623,14 @@ class FileSaveForm(FileFormBase):
             use_next_version = self._ui.use_next_available_cb.isChecked()
             ext_idx = self._ui.file_type_menu.currentIndex() 
             ext = self._extension_choices[ext_idx] if ext_idx >= 0 else ""
+            # get the description from the UI and save it inside the context
+            # which isn't the proper way but a quick fix with very few code
+            # changes.
+            # nobody will care about this anyway since nobody is using this.
+            description = value_to_str(self._ui.description_edit.text())
+            fake_version = {'description': description,
+                            'type': 'DescriptionStorage'}
+            self._current_env.context.additional_entities.append(fake_version)
 
             # now attempt to generate the path to save to:
             version_to_save = None
