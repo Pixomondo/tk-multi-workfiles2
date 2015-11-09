@@ -800,6 +800,17 @@ class FileModel(QtGui.QStandardItemModel):
             # add to the list of valid files:
             valid_files[file_version_key] = file_item
 
+            # Pixomondo addition: We fill file_item.thumbnail with a SG
+            # thumbnail. Let's retrieve it if one is available:
+            if not file_item.is_published and file_item.thumbnail_path \
+                    and not file_item.thumbnail:
+                # request the thumbnail using the data retriever:
+                # We are not providing an entity type or an id. Still works.
+                request_id = self._sg_data_retriever.request_thumbnail(
+                    file_item.thumbnail_path, '', 0, "image", load_image=True)
+                self._pending_thumbnail_requests[request_id] = \
+                    (group_item.key, file_item.key, file_item.version)
+
             # if this is from a published file then we want to retrieve the thumbnail
             # if one is available:
             if file_item.is_published and file_item.thumbnail_path and not file_item.thumbnail:
